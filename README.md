@@ -1,6 +1,6 @@
 # How to setup and run the bot
 
-### Installation
+### Installation, Setup and Running
 
 ```sh
 ## Clone the repository
