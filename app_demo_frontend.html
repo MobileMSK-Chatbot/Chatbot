@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MobileMSK Insurance</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>MobileMSK Insurance</h1>
+    </header>
+    
+    <main>
+        <section class="search-section">
+            <h2>Find and Compare Health Insurance Plans</h2>
+            <form id="search-form">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+                
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" required>
+                
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="age" required>
+                
+                <label for="income">Annual Income:</label>
+                <input type="number" id="income" name="income" required>
+                
+                <label for="coverage">Coverage Type:</label>
+                <select id="coverage" name="coverage" required>
+                    <option value="individual">Individual</option>
+                    <option value="family">Family</option>
+                </select>
+                
+                <label for="health-history">Health History:</label>
+                <textarea id="health-history" name="health-history" rows="3" required></textarea>
+                
+                <button type="submit">Search Plans</button>
+            </form>
+        </section>
+
+        <section class="results-section">
+            <h2>Available Plans</h2>
+            <table id="plans-table">
+                <thead>
+                    <tr>
+                        <th>Plan Name</th>
+                        <th>Monthly Premium ($)</th>
+                        <th>Advantages</th>
+                        <th>Disadvantages</th>
+                    </tr>
+                </thead>
+                <tbody id="results"></tbody>
+            </table>
+        </section>
+
+        <section class="statistics-section">
+            <h2>Statistics</h2>
+            <p id="average-premium"></p>
+            <p id="total-plans"></p>
+            <p id="risk-assessment"></p>
+            <p id="premium-difference"></p>
+            <canvas id="premiumDistributionChart" width="400" height="200"></canvas>
+        </section>
+
+        <section class="videos-section">
+            <h2>Useful Videos on Health Insurance in Minnesota</h2>
+            <div class="video">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/example1" frameborder="0" allowfullscreen></iframe>
+                <p>Understanding Health Insurance Plans in Minnesota</p>
+            </div>
+            <div class="video">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/example2" frameborder="0" allowfullscreen></iframe>
+                <p>How to Choose the Right Health Insurance Plan</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="scripts.js"></script>
+    <canvas id="costComparisonChart" width="400" height="200"></canvas>
+    
+    <script>
+        const plans = [
+            { name: 'HealthPartners Gold', premium: 250, advantages: ['Low deductibles', 'Comprehensive preventive coverage'], disadvantages: ['Higher monthly premiums', 'Limited out-of-network coverage'] },
+            { name: 'Medica Silver', premium: 200, advantages: ['Moderate premiums', 'Decent coverage'], disadvantages: ['Higher deductibles than gold plans', 'Limited specialist access'] },
+            { name: 'Blue Cross Blue Shield Bronze', premium: 150, advantages: ['Lowest premiums', 'Good for major events'], disadvantages: ['High deductibles', 'Limited preventive services'] },
+            { name: 'UCare Platinum', premium: 300, advantages: ['Extensive coverage', 'Low out-of-pocket costs'], disadvantages: ['Highest premiums', 'Limited network'] },
+            { name: 'Medica Gold', premium: 225, advantages: ['Comprehensive coverage', 'Access to specialists'], disadvantages: ['Higher premiums', 'Higher deductibles'] },
+            { name: 'Blue Plus Silver', premium: 175, advantages: ['Moderate cost', 'Good preventive services'], disadvantages: ['Limited coverage for out-of-network services', 'Higher deductibles'] },
+            { name: 'HealthPartners Bronze', premium: 125, advantages: ['Lowest monthly premium', 'Good for low-use'], disadvantages: ['High deductibles', 'Limited preventive services'] },
+            { name: 'Allina Health Aetna Gold', premium: 270, advantages: ['Comprehensive coverage', 'Wide network'], disadvantages: ['Higher premiums', 'Limited out-of-network coverage'] }
+        ];
+
+        function calculateAveragePremium() {
+            const total = plans.reduce((sum, plan) => sum + plan.premium, 0);
+            return (total / plans.length).toFixed(2);
+        }
+
+        function calculateRiskScore(age, income) {
+            let score = 0;
+            if (age < 30) score += 1;
+            else if (age < 50) score += 2;
+            else score += 3;
+
+            if (income < 30000) score += 3;
+            else if (income < 60000) score += 2;
+            else score += 1;
+
+            return score;
+        }
+
+        function calculatePremiumDifference() {
+            const maxPremium = Math.max(...plans.map(plan => plan.premium));
+            const minPremium = Math.min(...plans.map(plan => plan.premium));
+            return (((maxPremium - minPremium) / minPremium) * 100).toFixed(2);
+        }
+
+        function displayAvailablePlans() {
+            const resultsTable = document.getElementById('results');
+            resultsTable.innerHTML = '';
+            plans.forEach(plan => {
+                const row = `<tr>
+                    <td>${plan.name}</td>
+                    <td>${plan.premium}</td>
+                    <td>${plan.advantages.join(', ')}</td>
+                    <td>${plan.disadvantages.join(', ')}</td>
+                </tr>`;
+                resultsTable.innerHTML += row;
+            });
+        }
+
+        function displayStatistics() {
+            const averagePremium = calculateAveragePremium();
+            document.getElementById('average-premium').innerText = `Average Monthly Premium: $${averagePremium}`;
+            document.getElementById('total-plans').innerText = `Total Number of Plans: ${plans.length}`;
+
+            const age = parseInt(document.getElementById('age').value);
+            const income = parseInt(document.getElementById('income').value);
+            const riskScore = calculateRiskScore(age, income);
+            document.getElementById('risk-assessment').innerText = `Risk Score: ${riskScore}`;
+
+            const premiumDifference = calculatePremiumDifference();
+            document.getElementById('premium-difference').innerText = `Percentage Difference between Highest and Lowest Premium: ${premiumDifference}%`;
+        }
+
+        function displayPremiumDistributionChart() {
+            const ctx = document.getElementById('premiumDistributionChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: plans.map(plan => plan.name),
+                    datasets: [{
+                        label: 'Monthly Premium Distribution',
+                        data: plans.map(plan => plan.premium),
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.2)', 
+                            'rgba(153, 102, 255, 0.2)', 
+                            'rgba(255, 159, 64, 0.2)',
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(75, 192, 192, 1)', 
+                            'rgba(153, 102, 255, 1)', 
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Monthly Premium Distribution'
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('search-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            displayAvailablePlans();
+            displayStatistics();
+            displayPremiumDistributionChart();
+        });
+
+        window.onload = function() {
+            displayAvailablePlans();
+            displayStatistics();
+        };
+
+        const ctx = document.getElementById('costComparisonChart').getContext('2d');
+        const costComparisonChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: plans.map(plan => plan.name),
+                datasets: [{
+                    label: 'Monthly Premium ($)',
+                    data: plans.map(plan => plan.premium),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+  
+  
+</body>
+</html>
